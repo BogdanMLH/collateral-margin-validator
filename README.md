@@ -1,6 +1,6 @@
 # Collateral Margin Validator 🏦
 
-An event-driven Spring Boot microservice that consumes real-time portfolio updates via Kafka, validates collateral thresholds, and triggers Margin Call alerts — persisting all incidents to PostgreSQL for auditing.
+An event-driven Spring Boot microservice that consumes real-time portfolio updates via Kafka, validates collateral thresholds, and triggers Margin Call alerts - persisting all incidents to PostgreSQL for auditing.
 
 > ⚠️ This is an MVP / proof-of-concept. Not production-ready.
 
