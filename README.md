@@ -33,19 +33,3 @@ docker-compose up -d
 That's it. The producer starts emitting events automatically. Watch the logs for `[MARGIN CALL TRIGGERED]`.
 
 ---
-
-## Configuration
-
-Key properties in `application.yml`:
-
-| Property | Default | Description |
-|---|---|---|
-| `app.producer.emission-interval-ms` | `5000` | How often portfolio updates are emitted |
-| `app.kafka.topics.portfolio-updates` | `portfolio-updates` | Inbound topic |
-| `app.kafka.topics.margin-calls` | `margin-calls` | Outbound alert topic |
-
----
-
-## License
-
-[MIT](LICENSE)
