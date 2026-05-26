@@ -1,63 +1,51 @@
 # Collateral Margin Validator 🏦
 
-An event-driven Spring Boot microservice designed to process real-time financial portfolio updates, validate collateral requirements, and generate Margin Call alerts using Apache Kafka and PostgreSQL.
+An event-driven Spring Boot microservice that consumes real-time portfolio updates via Kafka, validates collateral thresholds, and triggers Margin Call alerts — persisting all incidents to PostgreSQL for auditing.
 
-## 📌 Project Overview
-In global financial markets, institutions must maintain sufficient collateral to cover their trading risks. This project simulates a core component of a **Collateral Management System**. 
+> ⚠️ This is an MVP / proof-of-concept. Not production-ready.
 
-The service asynchronously consumes simulated streams of asset valuations, evaluates them against required thresholds, and triggers critical alerts (`Margin Calls`) if a portfolio's value drops below the acceptable risk limit. All critical incidents are persisted in a relational database for auditing purposes.
+---
 
-## 🏗 Architecture
-The project follows an Event-Driven Architecture (EDA) to ensure loose coupling and high scalability.
+## How It Works
 
-1. **Portfolio Update Producer (Simulated External Feed):** Periodically generates and publishes `PortfolioUpdate` events (simulating market fluctuations) to a Kafka topic.
-2. **Apache Kafka (Event Bus):** Acts as a highly available message broker decoupling the data ingestion from the processing logic.
-3. **Collateral Validator (Consumer):** Listens to the incoming stream, applies business rules (comparing `currentValue` vs `requiredValue`), and identifies shortfalls.
-4. **Margin Call Publisher & Storage:** Upon detecting a shortfall, the service concurrently:
-    * Publishes a `MarginCallAlert` to a dedicated Kafka topic for downstream notifications.
-    * Persists the `MarginCallEvent` to a PostgreSQL database for historical auditing.
+1. A **producer** periodically emits simulated `PortfolioUpdate` events to a Kafka topic.
+2. The **validator** consumes them and checks if `currentValue < requiredValue`.
+3. On shortfall: publishes a `MarginCallAlert` to Kafka **and** persists the event to PostgreSQL.
 
-## 🛠 Tech Stack
-* **Language:** Java 17+
-* **Framework:** Spring Boot 3.x
-* **Messaging Bus:** Apache Kafka (KRaft mode)
-* **Database:** PostgreSQL
-* **ORM:** Spring Data JPA / Hibernate
-* **Containerization:** Docker & Docker Compose
-* **Other Tools:** Lombok, Jackson (with JSR-310 support)
+---
 
-## 🚀 Quick Start
+## Tech Stack
 
-### Prerequisites
-* Docker Desktop installed and running
-* Java 17 or higher
-* Maven
+`Java 17` · `Spring Boot 3.x` · `Apache Kafka (KRaft)` · `PostgreSQL` · `Docker Compose` · `Lombok` · `Jackson`
 
-### Running the Infrastructure
-Start the Apache Kafka broker and PostgreSQL database using Docker Compose:
+---
 
+## Running Locally
+
+```bash
+# 1. Start Kafka + PostgreSQL
 docker-compose up -d
-Kafka will be available on localhost:9092 and PostgreSQL on localhost:5432.
 
-Running the Application
-You can run the application directly via Maven:
-
-Bash
+# 2. Run the app
 ./mvnw spring-boot:run
-Observing the System
-Once the application starts, check the terminal logs. You will observe:
+```
 
-INFO logs indicating new portfolio updates being published and consumed.
+That's it. The producer starts emitting events automatically. Watch the logs for `[MARGIN CALL TRIGGERED]`.
 
-WARN logs displaying ⚠️ MARGIN CALL TRIGGERED when an asset's value drops below the threshold.
+---
 
-INFO logs confirming that the incident has been successfully saved to the PostgreSQL database.
+## Configuration
 
-💼 Business Value & Key Learnings
-Domain-Driven Design (DDD): Built using financial industry terminology (Collateral, Margin Call, Shortfall) to accurately reflect business processes.
+Key properties in `application.yml`:
 
-Resilience: Configured Kafka consumer with earliest offset reset to ensure zero data loss of financial events in case of application downtime.
+| Property | Default | Description |
+|---|---|---|
+| `app.producer.emission-interval-ms` | `5000` | How often portfolio updates are emitted |
+| `app.kafka.topics.portfolio-updates` | `portfolio-updates` | Inbound topic |
+| `app.kafka.topics.margin-calls` | `margin-calls` | Outbound alert topic |
 
-Modern Serialization: Implemented Jackson modules for robust handling of Java 8 LocalDateTime across the event stream.
+---
 
-Auditability: Integrated persistent storage (Spring Data JPA) to ensure critical financial alerts are never lost.
+## License
+
+[MIT](LICENSE)
